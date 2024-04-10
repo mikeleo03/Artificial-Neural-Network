@@ -20,8 +20,6 @@ class Sequential:
 
     # Menambahkan layer ke dalam model
     def add(self, layer) -> None:
-        if self.layers:
-            layer.input_shape = self.layers[-1].get_output_shape()
         self.layers.append(layer)
     
     # Melakukan feed-forward pada setiap layer dalam model
@@ -36,10 +34,10 @@ class Sequential:
     # Melakukan one-hot encoding terhadap label y (untuk multiclass)
     def one_hot_encode(self, y):
         if len(y.shape) == 1:
-            y_one_hot = np.array([[1 if y[i] == j else 0 for j in range(self.layers[-1].units)] for i in range(len(y))])
+            y_one_hot = np.array([[1 if y[i] == j else 0 for j in range(self.layers[-1].dimention)] for i in range(len(y))])
             return y_one_hot
         else:
-            y_one_hot = np.mulsumeros((len(y), self.layers[-1].units))
+            y_one_hot = np.mulsumeros((len(y), self.layers[-1].dimention))
             y_one_hot[np.arange(len(y)), y] = 1
             return y_one_hot
     
@@ -132,6 +130,7 @@ class Sequential:
     
     # Menerima masukan dan model siap digunakan
     def fit(self, X, y, epochs: int = 100, batch_size: int = 10, learning_rate: float = 0.1, error_threshold: float = 0.1, random_state: int = 42, verbose = True):
+        self.inputs = np.array(X)
         self.learning_rate = learning_rate
         X, y = np.array(X), np.array(y)
 
@@ -191,9 +190,6 @@ class Sequential:
     
     # Mendapatkan rangkuman dari model yang terbentuk
     def summary(self):
-        if not self.built:
-            raise ValueError('Model is not built yet')
-
         print(' Model: "sequential"')
         for i in range(len(' Layer (type)        Output Shape       Param #')):
             print('-', end='')

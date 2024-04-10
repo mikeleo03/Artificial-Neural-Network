@@ -28,7 +28,10 @@ class Layer:
     # Mengambil jumlah neuron dalam layer
     def get_dimention(self):
         return self.dimention
-
+    
+    # TODO : melakukan randomisasi weight yang normal, sesuai guideline di slide
+    def random_weight(self, shape):
+        return None
 
 class Dense(Layer):
     '''
@@ -40,16 +43,20 @@ class Dense(Layer):
         weights: Kumpulan bobot dari layer ini.
         bias: Bias dari layer ini.
         inputs: Input data yang digunakan untuk layer ini (dari json).
+        input_shape: Bentuk input shape yang digunakan.
     '''
     
     # Inisiasi kelas
-    def __init__(self, dimention, activation=None):
+    def __init__(self, dimention, activation=None, input_shape=None):
         super().__init__(dimention)
         self.dimention = dimention
         self.activation = get_activation_function(activation)
+        self.input_shape = input_shape
     
     # Membangun layer dengan assign nilai bobot dan bias
-    def build(self, input_weight: np.array):
+    # TODO : ubah, kalo input_weight nya gaada dia menginisasi random weight yang normal
+    # HINT : utilisasi random_weight di kelas layer
+    def build(self, input_weight: np.array, input_shape):
         self.weights = np.array(input_weight[1:])
         self.bias = np.array(input_weight[0])
         super().build(input_weight)

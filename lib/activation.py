@@ -1,19 +1,35 @@
 import numpy as np
 
 # Fungsi aktivasi reLU
-def relu(x):
+def relu(x, derivative=False):
+    if derivative:
+        # TODO : implement
+        return None
+    
     return np.maximum(0, x)
 
 # Fungsi aktivasi sigmoid
-def sigmoid(x):
+def sigmoid(x, derivative=False):
+    if derivative:
+        # TODO : implement
+        return None
+    
     return 1 / (1 + np.exp(-x))
 
 # Fungsi aktivasi linear
-def linear(x):
+def linear(x, derivative=False):
+    if derivative:
+        # TODO : implement
+        return None
+    
     return x
 
 # Fungsi aktivasi softmax
-def softmax(x):
+def softmax(x, derivative=False):
+    if derivative:
+        # TODO : implement
+        return None
+    
     exp_values = np.exp(x - np.max(x, axis=1, keepdims=True))
     return exp_values / np.sum(exp_values, axis=1, keepdims=True)
 
