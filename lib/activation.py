@@ -28,4 +28,4 @@ def get_activation_function(function_name):
     elif function_name == 'softmax':
         return softmax
     else:
-        raise Exception('Activation function not found')
+        raise Exception('Activation function not found.')

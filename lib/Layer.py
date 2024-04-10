@@ -59,4 +59,6 @@ class Dense(Layer):
         self.inputs = inputs
         mulsum = np.dot(inputs, self.weights)
         mulsum += self.bias
-        return self.activation(mulsum)
+        self.mulsum = mulsum
+        self.output = self.activation(mulsum)
+        return self.output
