@@ -37,13 +37,13 @@ class Sequential:
         if len(y.shape) == 1:
             y_one_hot = np.array(
                 [
-                    [1 if y[i] == j else 0 for j in range(self.layers[-1].dimention)]
+                    [1 if y[i] == j else 0 for j in range(self.layers[-1].dimension)]
                     for i in range(len(y))
                 ]
             )
             return y_one_hot
         else:
-            y_one_hot = np.mulsumeros((len(y), self.layers[-1].dimention))
+            y_one_hot = np.mulsumeros((len(y), self.layers[-1].dimension))
             y_one_hot[np.arange(len(y)), y] = 1
             return y_one_hot
 
@@ -237,16 +237,16 @@ class Sequential:
 
         total_params = 0
         counter = 0
-        last_layer_dimention = 0
+        last_layer_dimension = 0
         for layer in self.layers:
             param_count = 0
-            layer_dimention = layer.get_dimention()
+            layer_dimension = layer.get_dimension()
             if counter == 0:
-                param_count = (len(self.inputs[0]) + 1) * layer_dimention
+                param_count = (len(self.inputs[0]) + 1) * layer_dimension
             else:
-                param_count = (last_layer_dimention + 1) * layer_dimention
+                param_count = (last_layer_dimension + 1) * layer_dimension
 
-            last_layer_dimention = layer_dimention
+            last_layer_dimension = layer_dimension
 
             # Print the layer type
             dense_name = ""
@@ -260,10 +260,10 @@ class Sequential:
                 print(" ", end="")
 
             # Print the output shape
-            print(f" (None, {layer_dimention})", end="")
+            print(f" (None, {layer_dimension})", end="")
 
             for i in range(
-                len("Output Shape       ") - len(f" (None, {layer_dimention})")
+                len("Output Shape       ") - len(f" (None, {layer_dimension})")
             ):
                 print(" ", end="")
 
@@ -323,13 +323,13 @@ class Sequential:
 
             # Hidden Layers
             for i in range(len(self.layers) - 1):
-                for j in range(self.layers[i].dimention):
+                for j in range(self.layers[i].dimension):
                     dot.node(f"hidden{i}{j}", f"hidden{i}{j}", color="#e67e22")
 
                 if i == 0:
                     # Layer
                     for j in range(len(self.inputs[0])):
-                        for k in range(self.layers[i].dimention):
+                        for k in range(self.layers[i].dimension):
                             weight = self.layers[i].weights[j][k]
                             dot.edge(
                                 f"input{j}",
@@ -339,7 +339,7 @@ class Sequential:
                             )
 
                     # Bias
-                    for k in range(self.layers[i].dimention):
+                    for k in range(self.layers[i].dimension):
                         weight = self.layers[i].bias[k]
                         dot.edge(
                             f"bias{i}",
@@ -350,8 +350,8 @@ class Sequential:
 
                 else:
                     # Layer
-                    for j in range(self.layers[i - 1].dimention):
-                        for k in range(self.layers[i].dimention):
+                    for j in range(self.layers[i - 1].dimension):
+                        for k in range(self.layers[i].dimension):
                             weight = self.layers[i].weights[j][k]
                             dot.edge(
                                 f"hidden{i-1}{j}",
@@ -361,7 +361,7 @@ class Sequential:
                             )
 
                     # Bias
-                    for k in range(self.layers[i].dimention):
+                    for k in range(self.layers[i].dimension):
                         weight = self.layers[i].bias[k]
                         dot.edge(
                             f"bias{i}",
@@ -375,7 +375,7 @@ class Sequential:
                 dot.node(f"output{i}", f"output{i}", color="#f1c40f")
 
             # Layer
-            for i in range(self.layers[-2].dimention):
+            for i in range(self.layers[-2].dimension):
                 for j in range(len(self.result[0])):
                     weight = self.layers[-1].weights[i][j]
                     dot.edge(

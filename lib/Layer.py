@@ -6,15 +6,15 @@ class Layer:
     Mengilustrasikan layer sebagai masukan untuk kelas Dense
 
     Atribut:
-        dimention: Jumlah neuron dalam layer ini.
+        dimension: Jumlah neuron dalam layer ini.
         built: Apakah layer sudah terbentuk atau belum.
         input_weight: Bobot dari setiap neuron dalam layer ini.
     '''
     
     # Inisiasi kelas
-    def __init__(self, dimention):
+    def __init__(self, dimension):
         self.built = False
-        self.dimention = dimention
+        self.dimension = dimension
 
     # Membangun layer dengan meng-assign nilai bobot
     def build(self, input_weight: np.array):
@@ -26,8 +26,8 @@ class Layer:
         return inputs
     
     # Mengambil jumlah neuron dalam layer
-    def get_dimention(self):
-        return self.dimention
+    def get_dimension(self):
+        return self.dimension
     
     # TODO : melakukan randomisasi weight yang normal, sesuai guideline di slide
     def random_weight(self, shape):
@@ -38,7 +38,7 @@ class Dense(Layer):
     Layer yang terhubung satu dengan yang lain
 
     Atribut:
-        dimention: Jumlah neuron dalam layer ini.
+        dimension: Jumlah neuron dalam layer ini.
         activation: Fungsi aktivasi yang digunakan.
         weights: Kumpulan bobot dari layer ini.
         bias: Bias dari layer ini.
@@ -47,9 +47,9 @@ class Dense(Layer):
     '''
     
     # Inisiasi kelas
-    def __init__(self, dimention, activation=None, input_shape=None):
-        super().__init__(dimention)
-        self.dimention = dimention
+    def __init__(self, dimension, activation=None, input_shape=None):
+        super().__init__(dimension)
+        self.dimension = dimension
         self.activation = get_activation_function(activation)
         self.input_shape = input_shape
     
