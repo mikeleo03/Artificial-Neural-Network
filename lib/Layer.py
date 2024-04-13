@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from .activation import get_activation_function
 
 class Layer:
@@ -29,9 +30,14 @@ class Layer:
     def get_dimension(self):
         return self.dimension
     
-    # TODO : melakukan randomisasi weight yang normal, sesuai guideline di slide
+    # Melakukan randomisasi weight yang normal, sesuai guideline di slide
     def random_weight(self, shape):
-        return None
+        weights = []
+        for i in range(shape[0] + 1) :
+            weights.append([])
+            for j in range(shape[1]) :
+                weights[i].append(random.uniform(-0.05, 0.05))
+        return weights
 
 class Dense(Layer):
     '''
@@ -52,13 +58,16 @@ class Dense(Layer):
         self.dimension = dimension
         self.activation = get_activation_function(activation)
         self.input_shape = input_shape
+        self.build()
     
     # Membangun layer dengan assign nilai bobot dan bias
-    # TODO : ubah, kalo input_weight nya gaada dia menginisasi random weight yang normal
-    # HINT : utilisasi random_weight di kelas layer
-    def build(self, input_weight: np.array, input_shape):
-        self.weights = np.array(input_weight[1:])
-        self.bias = np.array(input_weight[0])
+    def build(self, input_weight: np.array = None):
+        if input_weight == None :
+            weights_arr = np.array(self.random_weight(shape=(self.input_shape[0], self.dimension)))
+        else :
+            weights_arr = np.array(input_weight)
+        self.weights = np.array(weights_arr[1:])
+        self.bias = np.array(weights_arr[0])
         super().build(input_weight)
     
     # Melakukan feed-forward pada layer ini
