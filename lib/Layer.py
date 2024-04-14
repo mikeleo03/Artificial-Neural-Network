@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import math
 from .activation import get_activation_function
 
 class Layer:
@@ -36,7 +37,7 @@ class Layer:
         for i in range(shape[0] + 1) :
             weights.append([])
             for j in range(shape[1]) :
-                weights[i].append(random.uniform(-0.05, 0.05))
+                weights[i].append(random.uniform(-math.sqrt(6)/math.sqrt(shape[0] + shape[1]), math.sqrt(6)/math.sqrt(shape[0] + shape[1])))
         return weights
 
 class Dense(Layer):
@@ -58,17 +59,16 @@ class Dense(Layer):
         self.dimension = dimension
         self.activation = get_activation_function(activation)
         self.input_shape = input_shape
-        self.build()
     
     # Membangun layer dengan assign nilai bobot dan bias
     def build(self, input_weight: np.array = None):
-        if input_weight == None :
+        if input_weight is None :
             weights_arr = np.array(self.random_weight(shape=(self.input_shape[0], self.dimension)))
         else :
             weights_arr = np.array(input_weight)
-        self.weights = np.array(weights_arr[1:])
-        self.bias = np.array(weights_arr[0])
-        super().build(input_weight)
+        self.weights = weights_arr[1:]
+        self.bias = weights_arr[0]
+        super().build(weights_arr)
     
     # Melakukan feed-forward pada layer ini
     def call(self, inputs: np.array):
