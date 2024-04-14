@@ -1,7 +1,7 @@
 import numpy as np
 from .Layer import Dense
 from graphviz import Digraph
-
+import time
 
 class Sequential:
     """
@@ -111,7 +111,7 @@ class Sequential:
         else:  # Jika tidak maka nilai hasil propagation dari layer sebelumnya
             dnet_dw = self.layers[-2].output
 
-        dE_dw = np.dot(dE_dOut * dOut_dnet, dnet_dw)
+        dE_dw = np.dot(dnet_dw.T, dE_dOut * dOut_dnet)
         grad_w.append(dE_dw)
 
         # Melakukan kalkulasi gradien error terhadap bias di output layer
@@ -125,7 +125,7 @@ class Sequential:
             # ∂net_k/∂Out = wkj, weight dari layer sebelumnya
             dnetk_dOut = self.layers[layer_idx + 1].weights
             # Propagate the gradient backwards by multiplying with the gradient of the activation function
-            dE_dOut = np.dot(dE_dOut * dOut_dnet, dnetk_dOut)
+            dE_dOut = np.dot(dE_dOut * dOut_dnet, dnetk_dOut.T)
 
             # ∂Out/∂net bergantung pada nilai turunan setiap fungsi aktivasi
             dOut_dnet = self.layers[layer_idx].activation(
@@ -137,7 +137,7 @@ class Sequential:
             else:  # Jika tidak maka nilai hasil propagation dari layer sebelumnya
                 dnet_dw = self.layers[layer_idx - 1].output
 
-            dE_dw = np.dot(dE_dOut * dOut_dnet, dnet_dw.T)
+            dE_dw = np.dot(dnet_dw.T, dE_dOut * dOut_dnet)
             grad_w.insert(0, dE_dw)
 
             # Melakukan kalkulasi gradien error terhadap bias dari layer sebelumnya
@@ -186,6 +186,9 @@ class Sequential:
             epoch_loss = 0
 
             print(f"Epoch {epoch+1}/{epochs}")
+            
+            # Start time
+            time_start = time.time()
 
             for i in range(0, len(X), batch_size):
                 # Get batch
@@ -207,13 +210,16 @@ class Sequential:
                 progress_bar = "[" + "=" * progress + ">" + "-" * (29 - progress) + "]"
                 if verbose:
                     print(
-                        f"{i+size}/{len(X)} {progress_bar} - loss: {loss:.4f} - {self.metric}: {metric:.4f}",
+                        f"{i+size}/{len(X)} {progress_bar} - loss: {loss:.4f}",
                         end="\r",
                     )
+                    
+            # Finish time
+            time_finish = time.time()
 
             if verbose:
                 print(
-                    f"{len(X)}/{len(X)} [==============================] - loss: {epoch_loss:.4f} - {self.metric}: {epoch_metric:.4f}"
+                    f"{len(X)}/{len(X)} [==============================] - loss: {epoch_loss:.4f} - time: {time_finish - time_start:.4f} s"
                 )
 
             # Check apakah udah melewati nilai erro threshold
