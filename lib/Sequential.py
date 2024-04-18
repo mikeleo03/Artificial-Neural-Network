@@ -2,6 +2,7 @@ import numpy as np
 from .Layer import Dense
 from graphviz import Digraph
 import time
+import pickle
 
 class Sequential:
     """
