@@ -65,8 +65,8 @@ class Sequential:
     # Melakukan update weight dan bias pada backpropagation
     def update_weights(self, grad_w, grad_b):
         for i, layer in enumerate(self.layers):
-            layer.weights += self.learning_rate * grad_w[i]
-            layer.bias += self.learning_rate * grad_b[i]
+            layer.weights -= self.learning_rate * grad_w[i]
+            layer.bias -= self.learning_rate * grad_b[i]
 
     # Melakukan keseluruhan proses forward propagation
     def forward_propagation(self, X, y):
