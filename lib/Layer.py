@@ -59,7 +59,16 @@ class Dense(Layer):
         self.dimension = dimension
         self.activation = get_activation_function(activation)
         self.input_shape = input_shape
-        self.build()
+    
+    # Bentuk representase Dense Layer, untuk keperluan print
+    def __repr__(self):
+        return ''.join([
+            'Layer\n',
+            f'activation = {self.activation.__name__},\n',
+            f'weights =\n'
+            f'{self.weights},\n',
+            f'bias = {self.bias}'
+        ])
     
     # Membangun layer dengan assign nilai bobot dan bias
     def build(self, input_weight: np.array = None):
