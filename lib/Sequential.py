@@ -230,6 +230,20 @@ class Sequential:
 
         # Jika berhneti, maka nilai maksimum iterasi telah tercapai
         print("[Stop] Maximum number of iteration reached.")
+    
+    # Melakukan prediksi kelas target
+    def predict(self, X):
+        X = np.array(X)
+
+        # Forward propagation
+        y_prob = self.call(X)
+
+        if y_prob.shape[-1] == 1:
+            y_pred = np.array([0 if y_prob[i] > 0.5 else 1 for i in range(len(y_prob))])
+        else:
+            y_pred = np.argmax(y_prob, axis=-1)
+
+        return y_pred
 
     # Mendapatkan rangkuman dari model yang terbentuk
     def summary(self):
@@ -287,9 +301,6 @@ class Sequential:
     # Memberikan visualisasi hasil neural network.
     # Diharuskan untuk menginstall Grpahviz terlebih dahulu
     def visualize(self):
-        if not self.built:
-            raise ValueError("Model is not built yet")
-
         dot = Digraph(comment="FFNN")
         dot.attr(rankdir="LR", nodesep="1", ranksep="")
         dot.attr("node", shape="circle", width="0.4", height="0.4")
