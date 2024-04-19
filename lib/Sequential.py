@@ -44,8 +44,8 @@ class Sequential:
             )
             return y_one_hot
         else:
-            y_one_hot = np.mulsumeros((len(y), self.layers[-1].dimension))
-            y_one_hot[np.arange(len(y)), y] = 1
+            y_one_hot = np.zeros((len(y), self.layers[-1].dimension))
+            y_one_hot[np.arange(len(y)), y.astype(int)] = 1
             return y_one_hot
 
     # Melakukan kalkulasi loss berdasarkan fungsi aktivasi layer
@@ -74,7 +74,7 @@ class Sequential:
         X, y = np.array(X), np.array(y)
 
         # Melakukan one-hot encode kepada label
-        y_true = self.one_hot_encode(y)
+        y_true = y
 
         # Melakukan forward propagation
         y_prob = self.call(X)
@@ -95,7 +95,7 @@ class Sequential:
         y = np.array(y)
 
         # Melakukan one-hot encode kepada label
-        y_true = self.one_hot_encode(y)
+        y_true = y
 
         # Inisiasi nilai gradien bobot dan bias
         grad_w, grad_b = [], []
@@ -173,7 +173,7 @@ class Sequential:
             raise Exception("Epochs value invalid.")
 
         # Check if error threshold is valid
-        if error_threshold <= 0:
+        if error_threshold < 0:
             raise Exception("Error threshold value invalid.")
 
         # Set the seed for reproducibility
@@ -225,11 +225,16 @@ class Sequential:
 
             # Check apakah udah melewati nilai erro threshold
             if epoch_loss < error_threshold:
-                print("[Stop] Error threshold is reached.")
+                return "[Stop] Error threshold is reached."
                 break
 
         # Jika berhneti, maka nilai maksimum iterasi telah tercapai
-        print("[Stop] Maximum number of iteration reached.")
+        return "[Stop] Maximum number of iteration reached."
+    
+    # Mendapatkan informasi seluruh layer
+    def get_layers_info(self):
+        for layer in self.layers:
+            print(layer)
     
     # Melakukan prediksi kelas target
     def predict(self, X):
@@ -297,6 +302,10 @@ class Sequential:
             total_params += param_count
         print("===============================================")
         print(f"Total params: {total_params}")
+        
+        print("\n-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-")
+        print("Layer Summary")
+        self.get_layers_info()
 
     # Memberikan visualisasi hasil neural network.
     # Diharuskan untuk menginstall Grpahviz terlebih dahulu
