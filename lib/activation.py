@@ -1,13 +1,9 @@
-import numpy as np
-
-
 # Fungsi aktivasi reLU
 def relu(x, derivative=False):
     x = np.array(x, dtype=float)
     if derivative:
         return (x > 0).astype(float)
     return np.maximum(0, x)
-
 
 # Fungsi aktivasi sigmoid
 def sigmoid(x, derivative=False):
@@ -17,7 +13,6 @@ def sigmoid(x, derivative=False):
         return sig * (1 - sig)
     return 1 / (1 + np.exp(-x))
 
-
 # Fungsi aktivasi linear
 def linear(x, derivative=False):
     x = np.array(x, dtype=float)
@@ -25,18 +20,19 @@ def linear(x, derivative=False):
         return np.ones_like(x)
     return x
 
-
 # Fungsi aktivasi softmax
-def softmax(x, derivative=False):
-    x = np.array(x, dtype=float)
-    e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
-    softmax_values = e_x / np.sum(e_x, axis=-1, keepdims=True)
-
+def softmax(x, derivative=False, y_true=None):
+    x = np.atleast_2d(np.array(x, dtype=float))
+    exp_testues = np.exp(x - np.max(x, axis=1, keepdims=True))
+    probabilities = exp_testues / np.sum(exp_testues, axis=1, keepdims=True)
+    
     if derivative:
-        s = softmax_values.reshape(-1, 1)
-        return np.diagflat(s) - np.dot(s, s.T)
-    return softmax_values
-
+        if y_true is None:
+            raise ValueError("y_true must be provided for the derivative calculation.")
+        y_true = np.atleast_2d(y_true)
+        return probabilities - y_true
+    
+    return probabilities
 
 # Mengambil nilai fungsi aktivasi berdasarkan masukan pengguna
 def get_activation_function(function_name):
