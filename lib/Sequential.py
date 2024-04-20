@@ -211,7 +211,7 @@ class Sequential:
 
                 # Untuk keperluan mencetak progress bar
                 progress = int(20 * (i + size) / len(X))
-                bar = "[" + "=" * progress + ">" + "-" * (29 - progress) + "]"
+                bar = "[" + '\033[92m' + "━" * progress + ">" + "-" * (29 - progress) + '\033[0m' + "]"
                 if verbose:
                     print(
                         f"{i+size}/{len(X)} {bar} - loss: {loss:.4f}",
@@ -224,8 +224,8 @@ class Sequential:
             # Apakah progress ingin ditampilkan?
             if verbose:
                 print(
-                    f"{len(X)}/{len(X)} [==============================] - loss: {epoch_loss:.4f} - time: {time_finish - time_start:.4f} s"
-                )
+                    f"{len(X)}/{len(X)} [" + '\033[92m' + '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' + '\033[0m' + f"] - loss: {epoch_loss:.4f} - time: {time_finish - time_start:.4f} s"
+                )                       
 
             # Cek apakah udah melewati nilai error threshold
             if epoch_loss < error_threshold:
@@ -283,7 +283,7 @@ class Sequential:
             if counter == 0:
                 dense_name = " dense (Dense)"
             else:
-                dense_name = " dense_{counter} (Dense)"
+                dense_name = f" dense_{counter} (Dense)"
             print(dense_name, end="")
 
             for i in range(len(" Layer (type)       ") - len(dense_name)):
@@ -304,6 +304,7 @@ class Sequential:
             print()
 
             total_params += param_count
+            counter += 1
         print("===============================================")
         print(f"Total params: {total_params}")
         
