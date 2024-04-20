@@ -70,11 +70,13 @@ class Sequential:
             layer.bias -= self.learning_rate * grad_b[i]
 
     # Melakukan keseluruhan proses forward propagation
-    def forward_propagation(self, X, y):
+    def forward_propagation(self, X, y, encode):
         X, y = np.array(X), np.array(y)
 
-        # Melakukan one-hot encode kepada label
+        # Melakukan one-hot encoding hanya jika case dataset
         y_true = y
+        if (encode):
+            y_true = self.one_hot_encode(y)
 
         # Melakukan forward propagation
         y_prob = self.call(X)
@@ -91,11 +93,13 @@ class Sequential:
         return y_prob, y_pred, loss
 
     # Melakukan keseluruhan proses backward propagation
-    def backward_propagation(self, X, y, y_prob):
+    def backward_propagation(self, X, y, y_prob, encode):
         y = np.array(y)
 
-        # Melakukan one-hot encode kepada label
+        # Melakukan one-hot encoding hanya jika case dataset
         y_true = y
+        if (encode):
+            y_true = self.one_hot_encode(y)
 
         # Inisiasi nilai gradien bobot dan bias
         grad_w, grad_b = [], []
@@ -158,25 +162,26 @@ class Sequential:
         learning_rate: float = 0.1,
         error_threshold: float = 0.1,
         random_state: int = 42,
-        verbose=True,
+        encode: bool = True,
+        verbose: bool = True,
     ):
         self.inputs = np.array(X)
         self.learning_rate = learning_rate
         X, y = np.array(X), np.array(y)
 
-        # Check if batch_size is valid
+        # Melakukan pengecekan apakah ukuran batch valid
         if batch_size <= 0 or batch_size > len(X):
             raise Exception("Batch size invalid.")
 
-        # Check if epochs is valid
+        # Melakukan pengecekan apakah masukan epoch valid
         if epochs <= 0:
             raise Exception("Epochs value invalid.")
 
-        # Check if error threshold is valid
+        # Melakukan pengecekan apakah error threshold valid
         if error_threshold < 0:
             raise Exception("Error threshold value invalid.")
 
-        # Set the seed for reproducibility
+        # Mengatur seed awal proses randomisasi
         if random_state is not None:
             np.random.seed(random_state)
 
@@ -188,47 +193,46 @@ class Sequential:
 
             print(f"Epoch {epoch+1}/{epochs}")
             
-            # Start time
+            # Memulai kalkulasi waktu
             time_start = time.time()
 
             for i in range(0, len(X), batch_size):
-                # Get batch
+                # Mengambil batch
                 size = min(batch_size, len(X) - i)
 
-                # Forward propagation
-                y_prob, _, loss = self.forward_propagation(
-                    X[i : i + size], y[i : i + size]
-                )
+                # Melakukan forward propagation
+                y_prob, _, loss = self.forward_propagation(X[i : i + size], y[i : i + size], encode)
 
-                # Backward propagation
-                self.backward_propagation(X[i : i + size], y[i : i + size], y_prob)
+                # Melakukan backward propagation
+                self.backward_propagation(X[i : i + size], y[i : i + size], y_prob, encode)
 
-                # Update epoch loss and metric
+                # Mengupdate nilai loss sebuah epoch
                 epoch_loss += loss
 
-                # Print progress bar
+                # Untuk keperluan mencetak progress bar
                 progress = int(20 * (i + size) / len(X))
-                progress_bar = "[" + "=" * progress + ">" + "-" * (29 - progress) + "]"
+                bar = "[" + "=" * progress + ">" + "-" * (29 - progress) + "]"
                 if verbose:
                     print(
-                        f"{i+size}/{len(X)} {progress_bar} - loss: {loss:.4f}",
+                        f"{i+size}/{len(X)} {bar} - loss: {loss:.4f}",
                         end="\r",
                     )
                     
-            # Finish time
+            # Waktu eksekusi selesai
             time_finish = time.time()
-
+            
+            # Apakah progress ingin ditampilkan?
             if verbose:
                 print(
                     f"{len(X)}/{len(X)} [==============================] - loss: {epoch_loss:.4f} - time: {time_finish - time_start:.4f} s"
                 )
 
-            # Check apakah udah melewati nilai erro threshold
+            # Cek apakah udah melewati nilai error threshold
             if epoch_loss < error_threshold:
                 return "[Stop] Error threshold is reached."
                 break
 
-        # Jika berhneti, maka nilai maksimum iterasi telah tercapai
+        # Jika berhenti, maka nilai maksimum iterasi telah tercapai
         return "[Stop] Maximum number of iteration reached."
     
     # Mendapatkan informasi seluruh layer
@@ -240,7 +244,7 @@ class Sequential:
     def predict(self, X):
         X = np.array(X)
 
-        # Forward propagation
+        # Melakukanorward propagation
         y_prob = self.call(X)
 
         if y_prob.shape[-1] == 1:
@@ -251,7 +255,7 @@ class Sequential:
         return y_pred
 
     # Mendapatkan rangkuman dari model yang terbentuk
-    def summary(self):
+    def summary(self, full=False):
         print(' Model: "sequential"')
         for i in range(len(" Layer (type)        Output Shape       Param #")):
             print("-", end="")
@@ -274,7 +278,7 @@ class Sequential:
 
             last_layer_dimension = layer_dimension
 
-            # Print the layer type
+            # Mencetak tipe layer
             dense_name = ""
             if counter == 0:
                 dense_name = " dense (Dense)"
@@ -285,7 +289,7 @@ class Sequential:
             for i in range(len(" Layer (type)       ") - len(dense_name)):
                 print(" ", end="")
 
-            # Print the output shape
+            # Mencetak bentuk luaran
             print(f" (None, {layer_dimension})", end="")
 
             for i in range(
@@ -303,9 +307,10 @@ class Sequential:
         print("===============================================")
         print(f"Total params: {total_params}")
         
-        print("\n-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-")
-        print("Layer Summary")
-        self.get_layers_info()
+        if (full):
+            print("\n-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-")
+            print("Layer Summary")
+            self.get_layers_info()
 
     # Memberikan visualisasi hasil neural network.
     # Diharuskan untuk menginstall Grpahviz terlebih dahulu
@@ -430,3 +435,4 @@ class Sequential:
         model_file = f"model/{name}"
         with open(model_file, "wb") as f:
             pickle.dump(self, f)
+            

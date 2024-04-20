@@ -54,11 +54,13 @@ class Dense(Layer):
     '''
     
     # Inisiasi kelas
-    def __init__(self, dimension, activation=None, input_shape=None):
+    def __init__(self, dimension, activation=None, input_shape=None, input_weight:np.array=None):
         super().__init__(dimension)
         self.dimension = dimension
         self.activation = get_activation_function(activation)
         self.input_shape = input_shape
+        self.input_weight = input_weight
+        self.build()
     
     # Bentuk representase Dense Layer, untuk keperluan print
     def __repr__(self):
@@ -71,11 +73,11 @@ class Dense(Layer):
         ])
     
     # Membangun layer dengan assign nilai bobot dan bias
-    def build(self, input_weight: np.array = None):
-        if input_weight is None :
+    def build(self):
+        if self.input_weight is None :
             weights_arr = np.array(self.random_weight(shape=(self.input_shape[0], self.dimension)))
         else :
-            weights_arr = np.array(input_weight)
+            weights_arr = np.array(self.input_weight)
         self.weights = weights_arr[1:]
         self.bias = weights_arr[0]
         super().build(weights_arr)
