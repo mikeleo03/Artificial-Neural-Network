@@ -1,12 +1,12 @@
 class ModelTester:
     """
-    Melakukan pengujain berdasarkan model yang menjadi masukan kasus uji asisten.
+    Melakukan pengujian berdasarkan model yang menjadi masukan kasus uji asisten.
     """
     
     # Metode statik untuk melakukan pengujian model
     @staticmethod
     def test(test_case: str):
-        # Membaca konfigurasi model dan menginisasi model factory
+        # Membaca konfigurasi model dan menginisiasi model factory
         model_config: ModelConfig = JSONReader(test_case).read()
         model_factory = ModelFactory()
         model = model_factory.build(model_config)
@@ -17,7 +17,7 @@ class ModelTester:
         data = case['input']
         target = case['target']
 
-        # Melakukan model fiitting model dan mendapatkan alasan berhenti
+        # Melakukan model fitting model dan mendapatkan alasan berhenti
         stop_reason = model.fit(
             data, 
             target, 

@@ -1,9 +1,3 @@
-import numpy as np
-from .Layer import Dense
-from graphviz import Digraph
-import time
-import pickle
-
 class Sequential:
     """
     Model sequential seperti yang ada pada salindia kuliah
@@ -103,25 +97,44 @@ class Sequential:
 
         # Inisiasi nilai gradien bobot dan bias
         grad_w, grad_b = [], []
+        dOut_dnet = None
+        dE_dOut = None
 
         # Melakukan kalkulasi gradien error terhadap weight di output layer
-        # ∂E/∂w = ∂E/∂Out * ∂Out/∂net * ∂net/∂w
-        # ∂E/∂Out = -(tj - oj)
-        dE_dOut = -1 * (y_true - y_prob)
-        # ∂Out/∂net bergantung pada nilai turunan setiap fungsi aktivasi
-        dOut_dnet = self.layers[-1].activation(self.layers[-1].mulsum, derivative=True)
-        # ∂net/∂w, jika hanya ada satu layer (hanya layer output), maka nilainya adalah input
-        if len(self.layers) == 1:
-            dnet_dw = X
-        else:  # Jika tidak maka nilai hasil propagation dari layer sebelumnya
-            dnet_dw = self.layers[-2].output
+        if self.layers[-1].activation.__name__ == "softmax":
+            # ∂E/∂w = ∂E/∂net * ∂net/∂w
+            # ∂E/∂net khusus softmax menggunakan y_true
+            dE_dnet1 = self.layers[-1].activation(self.layers[-1].mulsum, derivative=True, y_true=y_true)
+            # ∂net/∂w, jika hanya ada satu layer (hanya layer output), maka nilainya adalah input
+            if len(self.layers) == 1:
+                dnet_dw = X
+            else:  # Jika tidak maka nilai hasil propagation dari layer sebelumnya
+                dnet_dw = self.layers[-2].output
 
-        dE_dw = np.dot(dnet_dw.T, dE_dOut * dOut_dnet)
-        grad_w.append(dE_dw)
+            dE_dw = np.dot(dnet_dw.T, dE_dnet1)
+            grad_w.append(dE_dw)
 
-        # Melakukan kalkulasi gradien error terhadap bias di output layer
-        dE_dnet = np.sum(dE_dOut * dOut_dnet, axis=0)
-        grad_b.append(dE_dnet)
+            # Melakukan kalkulasi gradien error terhadap bias di output layer
+            dE_dnet = np.sum(dE_dnet1, axis=0)
+            grad_b.append(dE_dnet)
+        else:
+            # ∂E/∂w = ∂E/∂Out * ∂Out/∂net * ∂net/∂w
+            # ∂E/∂Out = -(tj - oj)
+            dE_dOut = -1 * (y_true - y_prob)
+            # ∂Out/∂net bergantung pada nilai turunan setiap fungsi aktivasi
+            dOut_dnet = self.layers[-1].activation(self.layers[-1].mulsum, derivative=True)
+            # ∂net/∂w, jika hanya ada satu layer (hanya layer output), maka nilainya adalah input
+            if len(self.layers) == 1:
+                dnet_dw = X
+            else:  # Jika tidak maka nilai hasil propagation dari layer sebelumnya
+                dnet_dw = self.layers[-2].output
+
+            dE_dw = np.dot(dnet_dw.T, dE_dOut * dOut_dnet)
+            grad_w.append(dE_dw)
+
+            # Melakukan kalkulasi gradien error terhadap bias di output layer
+            dE_dnet = np.sum(dE_dOut * dOut_dnet, axis=0)
+            grad_b.append(dE_dnet)
 
         # Pemrosesan untuk setiap hidden layer
         # ∂E/∂w_ji = ∂E/∂net_j * ∂net_j/∂w
@@ -130,7 +143,10 @@ class Sequential:
             # ∂net_k/∂Out = wkj, weight dari layer sebelumnya
             dnetk_dOut = self.layers[layer_idx + 1].weights
             # Propagate the gradient backwards by multiplying with the gradient of the activation function
-            dE_dOut = np.dot(dE_dOut * dOut_dnet, dnetk_dOut.T)
+            if self.layers[layer_idx + 1].activation.__name__ == "softmax":
+                dE_dOut = np.dot(dE_dnet, dnetk_dOut.T)
+            else:
+                dE_dOut = np.dot(dE_dOut * dOut_dnet, dnetk_dOut.T)
 
             # ∂Out/∂net bergantung pada nilai turunan setiap fungsi aktivasi
             dOut_dnet = self.layers[layer_idx].activation(
@@ -141,7 +157,7 @@ class Sequential:
                 dnet_dw = X
             else:  # Jika tidak maka nilai hasil propagation dari layer sebelumnya
                 dnet_dw = self.layers[layer_idx - 1].output
-
+                
             dE_dw = np.dot(dnet_dw.T, dE_dOut * dOut_dnet)
             grad_w.insert(0, dE_dw)
 
