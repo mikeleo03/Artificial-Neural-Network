@@ -446,10 +446,41 @@ class Sequential:
 
         # Simpan graph hasil visualisasi dalam png
         dot.render("output/ffnn_graph", format="png", cleanup=True)
+        
+    # Melakukan evaluasi hasil terhadap label
+    def evaluate(self, expect):
+        # Menguabh weights menjadi numpy
+        labels = [np.array(layer) for layer in expect["final_weights"]]
+        max_sse = 0.000001
+
+        converted_layers = []
+
+        for layer in self.layers:
+            # Membuat list converted
+            new_layer = [layer.bias]
+            new_layer.extend(layer.weights)
+            # Dan menambahkannya ke converted_layers
+            converted_layers.append(np.array(new_layer))
+
+        print("Model evaluation (SSE)")
+        print("=============================")
+
+        # Pengecekan per layer
+        for k in range(len(labels)):
+            if converted_layers[k].shape != labels[k].shape:
+                raise Exception('The size of the results is not equal to labels.')
+
+            # Calculate SSE
+            squared_errors = (labels[k] - converted_layers[k]) ** 2
+            sse = np.sum(squared_errors)
+
+            if len(labels) > 1:
+                print(f"Layer {k + 1} --------------")
+            print("sse        :", sse)
+            print("sse status :", "Valid" if sse < max_sse else "Invalid")       
 
     # Menyimpan model
     def save(self, name: str):
         model_file = f"model/{name}"
         with open(model_file, "wb") as f:
             pickle.dump(self, f)
-            
