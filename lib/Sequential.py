@@ -244,7 +244,7 @@ class Sequential:
                 )                       
 
             # Cek apakah udah melewati nilai error threshold
-            if epoch_loss < error_threshold:
+            if epoch_loss / len(X) <= error_threshold:
                 return "[Stop] Error threshold is reached."
                 break
 
@@ -451,7 +451,7 @@ class Sequential:
     def evaluate(self, expect):
         # Menguabh weights menjadi numpy
         labels = [np.array(layer) for layer in expect["final_weights"]]
-        max_sse = 0.000001
+        max_sse = 0.0000001
 
         converted_layers = []
 
